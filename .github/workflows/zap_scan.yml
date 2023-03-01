@@ -8,23 +8,23 @@ on:
 #    - cron:  '0 18 * * 6'
 
 jobs:
-  build:
+  pull:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - name: Pull Juice Shop image
         run: docker pull bkimminich/juice-shop
         
-  deploy: 
-    needs: build
+  start-container: 
+    needs: pull
     runs-on: ubuntu-latest
     steps: 
       - uses: actions/checkout@v2
       - name: Run Juice Shop container
-        run: docker run --rm -p 3000:3000 bkimminich/juice-shop
+        run: docker run --rm -p 0:3000 bkimminich/juice-shop
 
   zap_scan:
-    needs: build
+    needs: pull
     runs-on: ubuntu-latest
     name: Scan docker image with ZAP
     steps:
@@ -33,7 +33,7 @@ jobs:
       - name: Pull docker iamge of ZAP
         run: docker pull owasp/zap2docker-stable
       - name: Run ZAP scan
-        run: docker run -t owasp/zap2docker-stable zap-baseline.py -t http://localhost:3000/#/
+        run: docker run -t owasp/zap2docker-stable zap-baseline.py -t http://localhost:3000/
         
 #     needs: build
 #     runs-on: ubuntu-latest
