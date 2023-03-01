@@ -1,10 +1,28 @@
 name: "ZAP Baseline Scan"
 
 on:
-  schedule:
-    - cron:  '0 18 * * 6'
+  push:
+    branches:
+      - master
+#  schedule:
+#    - cron:  '0 18 * * 6'
 
 jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14.x'
+      - name: Install dependencies
+        run: npm install
+      - name: Build application
+        run: npm run build
+      - name: Serve application
+        run: npm start
+
   zap_scan:
     runs-on: ubuntu-latest
     name: Scan Juice Shop preview instance on Heroku
@@ -17,6 +35,6 @@ jobs:
         uses: zaproxy/action-baseline@v0.3.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          target: 'https://preview.owasp-juice.shop'
+          target: 'http://localhost:3000'
           rules_file_name: '.zap/rules.tsv'
           cmd_options: '-a -j'
