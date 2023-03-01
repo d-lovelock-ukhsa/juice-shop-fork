@@ -26,18 +26,29 @@ jobs:
   zap_scan:
     needs: build
     runs-on: ubuntu-latest
-    name: Scan Juice Shop preview instance on Heroku
+    name: Scan docker image with ZAP
     steps:
       - name: Wait for build to deploy
         run: sleep 60
-      - name: Check out Git repository
-        uses: actions/checkout@5a4ac9002d0be2fb38bd78e4b4dbde5606d7042f #v2: v2.3.4 available
-        with:
-          ref: develop
-      - name: ZAP Scan
-        uses: zaproxy/action-baseline@v0.3.0
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          target: 'http://localhost:3000'
-          rules_file_name: '.zap/rules.tsv'
-          cmd_options: '-a -j'
+      - name: Pull docker iamge of ZAP
+        run: docker pull owasp/zap2docker-stable
+      - name: Run ZAP scan
+        run: docker run -t owasp/zap2docker-stable zap-baseline.py -t http://localhost:3000/#/
+        
+#     needs: build
+#     runs-on: ubuntu-latest
+#     name: Scan Juice Shop preview instance on Heroku
+#     steps:
+#       - name: Wait for build to deploy
+#         run: sleep 60
+#       - name: Check out Git repository
+#         uses: actions/checkout@5a4ac9002d0be2fb38bd78e4b4dbde5606d7042f #v2: v2.3.4 available
+#         with:
+#           ref: develop
+#       - name: ZAP Scan
+#         uses: zaproxy/action-baseline@v0.3.0
+#         with:
+#           token: ${{ secrets.GITHUB_TOKEN }}
+#           target: 'http://localhost:3000'
+#           rules_file_name: '.zap/rules.tsv'
+#           cmd_options: '-a -j'
