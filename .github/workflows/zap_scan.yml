@@ -12,16 +12,25 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Setup Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: '14.x'
-      - name: Install dependencies
-        run: npm install
-      - name: Build application
-        run: npm run build
-      - name: Serve application
-        run: npm start
+      - name: Pull Juice Shop image
+        run: docker pull bkimminich/juice-shop
+      - name: Run Juice Shop container
+        run: docker run --rm -p 3000:3000 bkimminich/juice-shop
+        timeout-minutes: 10
+#   build:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - uses: actions/checkout@v2
+#       - name: Setup Node.js
+#         uses: actions/setup-node@v2
+#         with:
+#           node-version: '14.x'
+#       - name: Install dependencies
+#         run: npm install
+#       - name: Build application
+#         run: npm run build
+#       - name: Serve application
+#         run: npm start
 
   zap_scan:
     needs: build
