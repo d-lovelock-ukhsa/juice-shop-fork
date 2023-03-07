@@ -10,26 +10,31 @@ on:
 jobs:
   pull:
     runs-on: ubuntu-latest
+    outputs:
+      runner: ${{ steps.juice-shop.outputs.runner }}
     steps:
       - uses: actions/checkout@v2
-      - name: Pull Juice Shop image
+      - name: juice-shop
         run: docker pull bkimminich/juice-shop
-        
-  start-container: 
-    needs: pull
-    runs-on: ubuntu-latest
-    steps: 
-      - uses: actions/checkout@v2
-      - name: Run Juice Shop container
-        run: docker run --rm -p 0:3000 bkimminich/juice-shop
+      - name: get docker runner
+        id: docker-runner
+        run: echo "::set-output name=runner::$(docker run -d -p 3000:3000 bkimminich/juice-shop)"
+
+#   start-container: 
+#     needs: pull
+#     runs-on: ubuntu-latest
+#     steps: 
+#       - uses: actions/checkout@v2
+#       - name: Run Juice Shop container
+#         run: docker run --rm -p 0:3000 bkimminich/juice-shop
 
   zap_scan:
     needs: pull
-    runs-on: ubuntu-latest
+    runs-on: ${{ needs.pull.outputs.runner }}
     name: Scan docker image with ZAP
     steps:
-      - name: Wait for build to deploy
-        run: sleep 60
+#       - name: Wait for build to deploy
+#         run: sleep 60
       - name: Pull docker iamge of ZAP
         run: docker pull owasp/zap2docker-stable
       - name: Run ZAP scan
