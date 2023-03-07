@@ -20,10 +20,11 @@ jobs:
          run: docker run --rm -d -p 3000:3000 bkimminich/juice-shop
     
        - name: OWASP ZAP
-         uses: zaproxy/action-baseline@v0.4.0
+         uses: zaproxy/action-baseline@v0.7.0
          with:
            # Target URL
            target: "http://localhost:3000"
+           rules_file_name: .zap/rules.tsv
            fail_action: false
            token: $
-           issue_title: Security Tests
+           issue_title: Baseline Scan
