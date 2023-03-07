@@ -23,10 +23,7 @@ jobs:
     runs-on: ${{ needs.pull.outputs.runner }}
     name: Scan docker image with ZAP
     steps:
-#       - name: Wait for build to deploy
-#         run: sleep 60
-      - name: Pull docker iamge of ZAP
+      - name: Pull docker image of ZAP
         run: docker pull owasp/zap2docker-stable
       - name: Run ZAP scan
         run: docker run -t owasp/zap2docker-stable zap-baseline.py -t http://localhost:3000/
-        
