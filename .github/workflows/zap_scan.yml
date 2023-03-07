@@ -26,3 +26,8 @@ jobs:
            target: "http://localhost:3000"
            rules_file_name: ".zap/rules.tsv"
            fail_action: false
+           command_opts: "-x .zap/work/zap-report.xml"
+
+       - name: Upload ZAP report
+         run: |
+          curl -X POST -H "api-token: <your-api-token>" -F "fileName=@.zap/work/zap-report.xml" "demo.iriusrisk.com/api/v1/products/<ref>/tests/zap/upload"
