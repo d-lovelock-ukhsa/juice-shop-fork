@@ -6,32 +6,24 @@ on:
       - master
 
 jobs:
-  zap_scan:
+  test:
+    name: OWASP ZAP SCANS
     runs-on: ubuntu-latest
-    name: Scan Juice Shop with ZAP
+
     steps:
-      - uses: actions/checkout@v2
-
-      - name: Start Juice Shop
-        run: npm install && npm start --prefix ./juice-shop
-
-      - name: Wait for Juice Shop to start
-        run: sleep 30
-
-      - name: Run ZAP scan
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y zaproxy
-          zap-cli --version
-          zap-cli start --daemon -config api.disablekey=true
-          zap-cli --verbose --output /zap/wrk/zap-baseline-report.html \
-            baseline-scan \
-            --baseline /zap/wrk/baseline.conf \
-            --output-format html \
-            --spider \
-            --start "http://localhost:3000/" \
-            --context-name "Juice Shop"
-          zap-cli alerts --base "http://localhost:3000/" --exit-code False
-
-      - name: Stop Juice Shop
-        run: kill $(ps aux | grep '[n]pm start' | awk '{print $2}')
+       - uses: actions/checkout@v2
+         with:
+          ref: master
+       - name: Pulling Docker Image
+         run: docker pull bkimminich/juice-shop
+       - name: Launching the app
+         run: docker run --rm -d -p 3000:3000 bkimminich/juice-shop
+    
+       - name: OWASP ZAP
+         uses: zaproxy/action-baseline@v0.4.0
+         with:
+           # Target URL
+           target: "http://localhost:3000"
+           fail_action: false
+           token: $
+           issue_title: Security Tests
