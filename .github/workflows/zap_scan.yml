@@ -26,4 +26,3 @@ jobs:
            target: "http://localhost:3000"
            rules_file_name: ".zap/rules.tsv"
            fail_action: false
-           cmd_options: "-x"
