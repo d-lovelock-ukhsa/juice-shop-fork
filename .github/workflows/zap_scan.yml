@@ -6,24 +6,32 @@ on:
       - master
 
 jobs:
-  pull:
+  zap_scan:
     runs-on: ubuntu-latest
-    outputs:
-      runner: ${{ steps.docker-runner.outputs.runner }}
+    name: Scan Juice Shop with ZAP
     steps:
       - uses: actions/checkout@v2
-      - name: juice-shop
-        run: docker pull bkimminich/juice-shop
-      - name: get docker runner
-        id: docker-runner
-        run: echo "::set-output name=runner::$(docker run -d -p 3000:3000 bkimminich/juice-shop)"
 
-  zap_scan:
-    needs: pull
-    runs-on: ${{ needs.pull.outputs.runner }}
-    name: Scan docker image with ZAP
-    steps:
-      - name: Pull docker image of ZAP
-        run: docker pull owasp/zap2docker-stable
+      - name: Start Juice Shop
+        run: npm install && npm start --prefix ./juice-shop &
+
+      - name: Wait for Juice Shop to start
+        run: sleep 30
+
       - name: Run ZAP scan
-        run: docker run -t owasp/zap2docker-stable zap-baseline.py -t http://localhost:3000/
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y zaproxy
+          zap-cli --version
+          zap-cli start --daemon -config api.disablekey=true
+          zap-cli --verbose --output /zap/wrk/zap-baseline-report.html \
+            baseline-scan \
+            --baseline /zap/wrk/baseline.conf \
+            --output-format html \
+            --spider \
+            --start "http://localhost:3000/" \
+            --context-name "Juice Shop"
+          zap-cli alerts --base "http://localhost:3000/" --exit-code False
+
+      - name: Stop Juice Shop
+        run: kill $(ps aux | grep '[n]pm start' | awk '{print $2}')
