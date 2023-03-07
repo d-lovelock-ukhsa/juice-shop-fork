@@ -30,7 +30,7 @@ jobs:
 
   zap_scan:
     needs: pull
-    runs-on: ${{ needs.pull.outputs.runner }}
+    runs-on: ${{needs.pull.outputs.runner}}
     name: Scan docker image with ZAP
     steps:
 #       - name: Wait for build to deploy
