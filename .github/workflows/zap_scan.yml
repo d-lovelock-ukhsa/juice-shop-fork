@@ -4,14 +4,12 @@ on:
   push:
     branches:
       - master
-#  schedule:
-#    - cron:  '0 18 * * 6'
 
 jobs:
   pull:
     runs-on: ubuntu-latest
     outputs:
-      runner: ${{ steps.juice-shop.outputs.runner }}
+      runner: ${{ steps.docker-runner.outputs.runner }}
     steps:
       - uses: actions/checkout@v2
       - name: juice-shop
@@ -20,17 +18,9 @@ jobs:
         id: docker-runner
         run: echo "::set-output name=runner::$(docker run -d -p 3000:3000 bkimminich/juice-shop)"
 
-#   start-container: 
-#     needs: pull
-#     runs-on: ubuntu-latest
-#     steps: 
-#       - uses: actions/checkout@v2
-#       - name: Run Juice Shop container
-#         run: docker run --rm -p 0:3000 bkimminich/juice-shop
-
   zap_scan:
     needs: pull
-    runs-on: ${{needs.pull.outputs.runner}}
+    runs-on: ${{ needs.pull.outputs.runner }}
     name: Scan docker image with ZAP
     steps:
 #       - name: Wait for build to deploy
@@ -40,20 +30,3 @@ jobs:
       - name: Run ZAP scan
         run: docker run -t owasp/zap2docker-stable zap-baseline.py -t http://localhost:3000/
         
-#     needs: build
-#     runs-on: ubuntu-latest
-#     name: Scan Juice Shop preview instance on Heroku
-#     steps:
-#       - name: Wait for build to deploy
-#         run: sleep 60
-#       - name: Check out Git repository
-#         uses: actions/checkout@5a4ac9002d0be2fb38bd78e4b4dbde5606d7042f #v2: v2.3.4 available
-#         with:
-#           ref: develop
-#       - name: ZAP Scan
-#         uses: zaproxy/action-baseline@v0.3.0
-#         with:
-#           token: ${{ secrets.GITHUB_TOKEN }}
-#           target: 'http://localhost:3000'
-#           rules_file_name: '.zap/rules.tsv'
-#           cmd_options: '-a -j'
