@@ -19,7 +19,7 @@ jobs:
         id: Depcheck
         with:
           project: 'juice-shop-fork'
-          path: '/frontend'
+          path: './frontend'
           format: 'HTML'
           out: 'reports' # this is the default, no need to specify unless you wish to override it
           args: >
